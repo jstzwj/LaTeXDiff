@@ -5,6 +5,7 @@ import os
 import tempfile
 import subprocess
 import time
+import sys
 
 
 def read_tex(path):
@@ -58,7 +59,7 @@ def main():
         print(cmd)
         p = subprocess.Popen(cmd,
                             stdout=output_f,
-                            stderr=output_f)
+                            stderr=sys.stdout)
         p.wait()
 
 if __name__ == "__main__":
