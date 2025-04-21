@@ -8,32 +8,37 @@ import time
 import sys
 
 
-def read_tex(path):
+def read_tex(path: str) -> str:
     with open(path, "r", encoding='utf-8') as f:
         text = f.read()
     return text
 
-def write_tex(path, text):
+def write_tex(path: str, text: str):
     with open(path, "w", encoding='utf-8') as f:
         f.write(text)
 
-def merge_tex(main_path, outfile):
+def merge_tex(main_path: str, outfile):
     basepath = os.path.dirname(main_path)
-    pattern = re.compile(r"\\input\{([a-zA-Z0-9_/]+)\}")
+    pattern = re.compile(r"\\input\{([a-zA-Z0-9_./]+)\}")
     tex = read_tex(main_path)
 
     new_tex = ''
     groups = [i for i in re.finditer(pattern, tex)]
     # groups = list(reversed(groups))
     for i, each_group in enumerate(groups):
-        sub_tex = read_tex(os.path.join(basepath, each_group.group(1)) + '.tex')
+        sub_tex_path = os.path.join(basepath, each_group.group(1))
+        if not sub_tex_path.endswith('.tex'):
+            sub_tex_path = sub_tex_path + '.tex'
+        sub_tex = read_tex(sub_tex_path)
         if i == 0:
             new_tex += tex[:each_group.start()] + sub_tex + tex[each_group.end():groups[i+1].start()]
         elif i == len(groups) - 1:
             new_tex += sub_tex + tex[each_group.end():]
         else:
             new_tex += sub_tex + tex[each_group.end():groups[i+1].start()]
-
+    if len(groups) == 0:
+        new_tex = tex
+    
     if isinstance(outfile, str):
         write_tex(outfile, new_tex)
     else:
